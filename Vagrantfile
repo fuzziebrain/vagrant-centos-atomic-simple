@@ -57,18 +57,23 @@ Vagrant.configure("2") do |config|
   #   # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
   #
+    action_provision = ".vagrant/machines/default/virtualbox/action_provision"
     disk01 = ".vagrant/machines/default/virtualbox/auxdisk01.vdi"
+
+    unless File.exist?(action_provision)
+      vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata", "--controller", "IntelAhci", "--portcount", "30"]
+    end
 
     unless File.exist?(disk01)
       vb.customize ["createmedium", "disk", "--filename", disk01, "--variant", "Fixed", "--size", 10 * 1024]
+      vb.customize ["storageattach", :id, "--storagectl", "SATA", "--port", 1, "--device", 0, "--type", "hdd", "--medium", disk01]
     end
 
   #   # Customize the amount of memory on the VM:
     # vb.memory = "2048"
     # vb.cpus = "1"
     # vb.name = "My Atomic Host"
-    vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata", "--controller", "IntelAhci", "--portcount", "30"]
-    vb.customize ["storageattach", :id, "--storagectl", "SATA", "--port", 1, "--device", 0, "--type", "hdd", "--medium", disk01]
+
   end
   #
   # View the documentation for the provider you are using for more
